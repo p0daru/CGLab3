@@ -25,22 +25,19 @@ renderer.setClearColor(0xffffff, 0); // transparent background
 document.getElementById("figure-container").appendChild(renderer.domElement);
 
 // Creating cube geometry
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+const geometry = new THREE.BoxGeometry();
 
 // Creating materials for each side of the cube
-const materialTopBottom = new THREE.MeshBasicMaterial({ color: 0xb2a5d3 }); // purple
-const materialLeftRightSides = new THREE.MeshBasicMaterial({ color: 0xffccda }); // pink
-const materialSides = new THREE.MeshBasicMaterial({ color: 0xc1dbea }); // blue
+const materials = [
+  new THREE.MeshBasicMaterial({ color: 0xd8bfd8 }), //  left side - бузковий
+  new THREE.MeshBasicMaterial({ color: 0xfff44f }), //  right side - лимонний
+  new THREE.MeshBasicMaterial({ color: 0x562b00 }), //  top side - коричневий
+  new THREE.MeshBasicMaterial({ color: 0x10767b }), //  bottom side - морської хвилі
+  new THREE.MeshBasicMaterial({ color: 0xdc143c }), //  front side - вишневий
+  new THREE.MeshBasicMaterial({ color: 0x9ed870 }), //  back side - салатовий
+];
 
 // Setting materials for each side of the cube
-const materials = [
-  materialLeftRightSides, // left side
-  materialLeftRightSides, // right side
-  materialTopBottom, // top
-  materialTopBottom, // bottom
-  materialSides, // front side
-  materialSides, // back side
-];
 const cube = new THREE.Mesh(geometry, materials);
 
 // Adding the cube to the scene
@@ -55,7 +52,8 @@ function animate3DScene() {
   requestAnimationFrame(animate3DScene);
 
   // Rotating the cube
-  cube.rotation.x += 0.01;
+  cube.rotation.x += 0.02;
+  cube.rotation.z += 0.01;
   cube.rotation.y += 0.01;
 
   // Rendering the scene with the camera
