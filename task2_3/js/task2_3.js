@@ -28,50 +28,31 @@ document.getElementById("figure-container").appendChild(renderer.domElement);
 const geometry = new THREE.BoxGeometry();
 
 // Creating materials for each side of the cube
-const red = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // red
-const yellow = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // yellow
+const vertexShader = `
+  varying vec3 vColor;
+
+  void main() {
+    vColor = position * 0.5 + 0.5; // Mapping position to color range [0, 1]
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  varying vec3 vColor;
+
+  void main() {
+    gl_FragColor = vec4(vColor, 1.0);
+  }
+`;
 
 // Setting materials for each side of the cube
-var material = new THREE.ShaderMaterial({
-  uniforms: {
-    color1: {
-      value: new THREE.Color("red"),
-    },
-    color2: {
-      value: new THREE.Color("yellow"),
-    },
-  },
-
-  vertexShader: `
-    varying vec2 vUv;
-
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform vec3 color1;
-    uniform vec3 color2;
-
-    varying vec2 vUv;
-
-    void main() {
-
-      gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
-    }
-  `,
+const material = new THREE.ShaderMaterial({
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
 });
 
 // Setting materials for each side of the cube
-const cube = new THREE.Mesh(geometry, [
-  material, // Left side
-  material, // Right side
-  yellow, // Top side
-  red, // Bottom side
-  material, // Front side
-  material, // Back side
-]);
+const cube = new THREE.Mesh(geometry, material);
 
 // Adding the cube to the scene
 scene.add(cube);
