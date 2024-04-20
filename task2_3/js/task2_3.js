@@ -24,38 +24,49 @@ renderer.setSize(winW, winH);
 renderer.setClearColor(0xffffff, 0); // transparent background
 document.getElementById("figure-container").appendChild(renderer.domElement);
 
-// Creating cube geometry
-const geometry = new THREE.BoxGeometry();
-
-// Creating materials for each side of the cube
+// Custom vertex shader
 const vertexShader = `
-  varying vec3 vColor;
+  varying vec3 vUv;
 
   void main() {
-    vColor = position * 0.5 + 0.5; // Mapping position to color range [0, 1]
+    vUv = position;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
+// Custom fragment shader
 const fragmentShader = `
-  varying vec3 vColor;
+  varying vec3 vUv;
+  uniform float angle;
 
   void main() {
-    gl_FragColor = vec4(vColor, 1.0);
+    // Calculate the gradient from top to bottom
+    float gradient = vUv.y;
+
+    // Adjusting the color transition using smoothstep
+    float angleColor = smoothstep(-0.5, 0.5, sin(angle));
+    vec3 color = mix(vec3(0.8, 0.8, 1.0), vec3(1.0, 1.0, 0.8), gradient);
+    color = mix(color, vec3(1.0, 0.8, 0.8), angleColor);
+
+    gl_FragColor = vec4(color, 1.0);
   }
 `;
 
-// Setting materials for each side of the cube
-const material = new THREE.ShaderMaterial({
+// Creating the cube geometry
+const myCubeGeometry = new THREE.BoxGeometry();
+
+// Creating a shader material with vertex and fragment shaders
+const myMaterial = new THREE.ShaderMaterial({
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
+  uniforms: { angle: { value: 3.14 } }
 });
 
-// Setting materials for each side of the cube
-const cube = new THREE.Mesh(geometry, material);
+// Creating the cube mesh with custom geometry and material
+const myCube = new THREE.Mesh(myCubeGeometry, myMaterial);
 
 // Adding the cube to the scene
-scene.add(cube);
+scene.add(myCube);
 
 // Setting the initial camera position
 camera.position.z = 3;
@@ -66,8 +77,12 @@ function animate3DScene() {
   requestAnimationFrame(animate3DScene);
 
   // Rotating the cube
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  myCube.rotation.x += 0.01;
+  myCube.rotation.y += 0.01;
+  myCube.rotation.z += 0.01;
+
+  // Setting the speed of changing angle
+  myMaterial.uniforms.angle.value += 0.014;
 
   // Rendering the scene with the camera
   renderer.render(scene, camera);
