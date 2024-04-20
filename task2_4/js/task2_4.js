@@ -24,45 +24,73 @@ renderer.setSize(winW, winH);
 renderer.setClearColor(0xffffff, 0); // transparent background
 document.getElementById("figure-container").appendChild(renderer.domElement);
 
-// Creating prism geometry
-const topBaseRadius = 1;
-const bottomBaseRadius = 1;
-const height = 1.8;
-const numOfSides = 7;
+// Create the cylinder geometry with smaller dimensions
+const cylinderGeometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 16); // smaller radius and height
 
-const geometry = new THREE.CylinderGeometry(
-  topBaseRadius,
-  bottomBaseRadius,
-  height,
-  numOfSides
-);
+// Create a material for the cylinder
+const cylinderMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 
-// Creating and setting materials for each side of the prism
-const materials = [
-  new THREE.MeshBasicMaterial({ color: 0xb2a5d3 }), // sides - purple
-  new THREE.MeshBasicMaterial({ color: 0xffccda }), // top - pink
-  new THREE.MeshBasicMaterial({ color: 0xc1dbea }), // bottom - blue
-];
-const prism = new THREE.Mesh(geometry, materials);
+// Create the cylinder mesh
+const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
-// Adding the prism to the scene
+// Set position for the cylinder on the left side
+cylinder.position.set(-1.5, 0, 0);
+
+// Add the cylinder to the scene
+scene.add(cylinder);
+
+// Create the pentagonal prism geometry
+const prismGeometry = new THREE.CylinderGeometry(0, 1, 2, 5, 1); // radius at the top is 0, so it forms a pentagonal prism
+
+// Create a material for the prism
+const prismMaterial = new THREE.MeshPhongMaterial({ color: 0xff00ff }); // Adjust color as needed
+
+// Create the prism mesh
+const prism = new THREE.Mesh(prismGeometry, prismMaterial);
+
+// Set position for the prism on the right side
+prism.position.set(1.5, 0, 0);
+
+// Add the prism to the scene
 scene.add(prism);
 
 // Setting the initial camera position
-camera.position.z = 5;
+camera.position.z = 4;
 
-// Animation function
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 50);
+scene.add(pointLight);
+
+// Define variables for the circular motion
+const radius = 5;
+let angle = 0;
+
+// Update function for animation
 function animate3DScene() {
-  // Requesting the next frame of animation
   requestAnimationFrame(animate3DScene);
 
-  // Rotating the prism
-  prism.rotation.x += 0.015;
-  prism.rotation.y += 0.01;
+  // Update light position in a circular motion
+  const x = Math.cos(angle) * radius;
+  const z = Math.sin(angle) * radius;
+  pointLight.position.set(x, 2, z);
 
-  // Rendering the scene with the camera
+  angle += 0.1; // Adjust speed of motion
+
+  // Rotate the cylinder
+  cylinder.rotation.x += 0.01;
+  cylinder.rotation.y += 0.01;
+  cylinder.rotation.z += 0.01;
+
+  // Rotate the prism
+  prism.rotation.x += 0.01;
+  prism.rotation.y += 0.01;
+  prism.rotation.z += 0.01;
+
+  // Render the scene with the camera
   renderer.render(scene, camera);
 }
 
-// Starting the animation
 animate3DScene();
